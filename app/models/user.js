@@ -1,3 +1,5 @@
+'use strict'
+// linter not working on this module
 const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
@@ -5,6 +7,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true
+  },
+  nickname: {
+    type: String,
+    required: true,
+    unique: true,
+    minlength: 3,
+    maxlength: 12
+  },
+  profilePicture: {
+    type: String,
+    required: false,
+    unique: false
   },
   hashedPassword: {
     type: String,
