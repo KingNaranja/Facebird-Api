@@ -10,7 +10,18 @@ const bcrypt = require('bcrypt')
 const bcryptSaltRounds = 10
 
 const handle = require('../../lib/error_handler')
+// this is a collection of methods that help us detect situations when we need
+// to throw a custom error
+const customErrors = require('../../lib/custom_errors')
+
+// we'll use this function to send 404 when non-existant document is requested
+const handle404 = customErrors.handle404
+// we'll use this function to send 401 when a user tries to modify a resource
+// that's owned by someone else
+// const requireOwnership = customErrors.requireOwnership
 const BadParamsError = require('../../lib/custom_errors').BadParamsError
+
+const validateUser = customErrors.validateUser
 
 const User = require('../models/user')
 
@@ -136,4 +147,40 @@ router.delete('/sign-out', requireToken, (req, res) => {
     .catch(err => handle(err, res))
 })
 
+// UPDATE
+// PATCH - nickname and profile picture
+// NEED TO CHECK: params validation
+router.patch('/users/:id', requireToken, (req, res) => {
+  // if the client attempts to change the `owner` property by including a new
+  // owner, prevent that by deleting that key/value pair
+  delete req.body.user.owner
+
+  User.findById(req.params.id)
+    .then(handle404)
+    .then(user => {
+      console.log(`user is`, user)
+      // pass the `req` object and the Mongoose record to `requireOwnership`
+      // it will throw an error if the current user isn't the owner
+      // requireOwnership(req, user)
+      // discarding requireOwnership because a user cannot own themselves,
+      // creating new function validateUser to handle this
+      validateUser(req, user)
+
+      // the client will often send empty strings for parameters that it does
+      // not want to update. We delete any key/value pair where the value is
+      // an empty string before updating
+      Object.keys(req.body.user).forEach(key => {
+        if (req.body.user[key] === '') {
+          delete req.body.user[key]
+        }
+      })
+
+      // pass the result of Mongoose's `.update` to the next `.then`
+      return user.update(req.body.user)
+    })
+    // if that succeeded, return 204 and no JSON
+    .then(() => res.sendStatus(204))
+    // if an error occurs, pass it to the handler
+    .catch(err => handle(err, res))
+})
 module.exports = router
