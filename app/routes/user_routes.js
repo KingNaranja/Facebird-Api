@@ -20,8 +20,10 @@ const customErrors = require('../../lib/custom_errors')
 const handle404 = customErrors.handle404
 // we'll use this function to send 401 when a user tries to modify a resource
 // that's owned by someone else
-const requireOwnership = customErrors.requireOwnership
+// const requireOwnership = customErrors.requireOwnership
 const BadParamsError = require('../../lib/custom_errors').BadParamsError
+
+const validateUser = customErrors.validateUser
 
 const User = require('../models/user')
 
@@ -158,9 +160,13 @@ router.patch('/users/:id', requireToken, (req, res) => {
   User.findById(req.params.id)
     .then(handle404)
     .then(user => {
+      console.log(`user is`, user)
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
-      requireOwnership(req, user)
+      // requireOwnership(req, user)
+      // discarding requireOwnership because a user cannot own themselves,
+      // creating new function validateUser to handle this
+      validateUser(req, user)
 
       // the client will often send empty strings for parameters that it does
       // not want to update. We delete any key/value pair where the value is
