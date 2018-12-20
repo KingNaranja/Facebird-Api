@@ -31,12 +31,18 @@ const router = express.Router()
 // INDEX
 // GET /posts
 router.get('/posts', requireToken, (req, res) => {
-  Post.find()
+  Post.find().populate('owner', 'nickname').sort('-createdAt')
     .then(posts => {
       // `posts` will be an array of Mongoose documents
       // we want to convert each one to a POJO, so we use `.map` to
       // apply `.toObject` to each one
-      return posts.map(post => post.toObject())
+      return posts.map(post => {
+        // possible moment js to reformat creation date.
+        // let time = post['createdAt']
+        // moment currently undefined since moment.js has not been installed.
+        // post['createdAt'] = moment(time).format('MMMM Do YYYY, h:mm:ss a')
+        return post.toObject()
+      })
     })
     // respond with status 200 and JSON of the posts
     .then(posts => res.status(200).json({ posts: posts }))
@@ -48,12 +54,12 @@ router.get('/posts', requireToken, (req, res) => {
 // GET ALL OF MY POSTS
 // GET /posts/user
 router.get('/posts/myPosts', requireToken, (req, res) => {
-  Post.find()
+  Post.find().populate('owner', 'nickname').sort('-createdAt')
     .then(posts => {
       // console.log(posts)
       const myPosts = []
       posts.forEach(post => {
-        if (req.user._id.equals(post.owner)) {
+        if (req.user._id.equals(post.owner._id)) {
           // console.log(`searcher is `, req.user._id)
           // console.log(`post owner is `, post.owner)
           // console.log(`I added this postto an array`, post)
@@ -75,7 +81,7 @@ router.get('/posts/myPosts', requireToken, (req, res) => {
 // GET /posts/5a7db6c74d55bc51bdf39793
 router.get('/posts/:id', requireToken, (req, res) => {
   // req.params.id will be set based on the `:id` in the route
-  Post.findById(req.params.id)
+  Post.findById(req.params.id).populate('owner', 'nickname')
     .then(handle404)
     // if `findById` is succesful, respond with 200 and "post" JSON
     .then(post => res.status(200).json({ post: post.toObject() }))
