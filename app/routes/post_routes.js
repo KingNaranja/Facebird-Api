@@ -77,6 +77,33 @@ router.get('/posts/myPosts', requireToken, (req, res) => {
     .catch(err => handle(err, res))
 })
 
+// SHOW MY LATEST POST
+// GET ALL OF MY POSTS
+// GET /posts/user
+router.get('/posts/myLatestPost', requireToken, (req, res) => {
+  Post.find().populate('owner', 'nickname').sort('-createdAt')
+    .then(posts => {
+      // console.log(posts)
+      const post = posts.find(post => {
+        if (req.user._id.equals(post.owner._id)) {
+          return post
+          // console.log(`searcher is `, req.user._id)
+          // console.log(`post owner is `, post.owner)
+          // console.log(`I added this postto an array`, post)
+        }
+
+        // `posts` will be an array of Mongoose documents
+        // we want to convert each one to a POJO, so we use `.map` to
+        // apply `.toObject` to each one
+      })
+      return post
+    })
+  // respond with status 200 and JSON of the posts
+    .then(post => res.status(200).json({ post: post }))
+  // if an error occurs, pass it to the handler
+    .catch(err => handle(err, res))
+})
+
 // SHOW
 // GET /posts/5a7db6c74d55bc51bdf39793
 router.get('/posts/:id', requireToken, (req, res) => {
