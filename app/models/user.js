@@ -1,3 +1,5 @@
+'use strict'
+
 const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
@@ -9,6 +11,18 @@ const userSchema = new mongoose.Schema({
   hashedPassword: {
     type: String,
     required: true
+  },
+  nickname: {
+    type: String,
+    required: true,
+    unique: true,
+    minlength: 3,
+    maxlength: 12
+  },
+  profilePicture: {
+    type: String,
+    required: false,
+    unique: false
   },
   token: String
 }, {
