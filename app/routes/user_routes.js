@@ -160,7 +160,7 @@ router.patch('/users/:id', requireToken, (req, res) => {
   User.findById(req.params.id)
     .then(handle404)
     .then(user => {
-      console.log(`user is`, user)
+      // console.log(`user is`, user)
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
       // requireOwnership(req, user)
