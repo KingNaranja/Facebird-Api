@@ -33,6 +33,8 @@ const router = express.Router()
 // INDEX
 // GET /posts
 router.get('/posts', requireToken, (req, res) => {
+  // Finds all posts, allows the client to access nickname through the owner,
+  // and then sorts posts by reverse created Date
   Post.find().populate('owner', 'nickname').sort('-createdAt')
     .then(posts => {
       // `posts` will be an array of Mongoose documents
@@ -61,6 +63,8 @@ router.get('/posts/myPosts', requireToken, (req, res) => {
       // console.log(posts)
       const myPosts = []
       posts.forEach(post => {
+        // checks to see if the post owner'id matches that of the requesting user
+        // if so, adds it to the myPosts array.
         if (req.user._id.equals(post.owner._id)) {
           // console.log(`searcher is `, req.user._id)
           // console.log(`post owner is `, post.owner)
@@ -71,6 +75,8 @@ router.get('/posts/myPosts', requireToken, (req, res) => {
       // `posts` will be an array of Mongoose documents
       // we want to convert each one to a POJO, so we use `.map` to
       // apply `.toObject` to each one
+
+      // returns the array, after changing all the posts to objects (though it's not really needed).
       return myPosts.map(post => post.toObject())
     })
     // respond with status 200 and JSON of the posts

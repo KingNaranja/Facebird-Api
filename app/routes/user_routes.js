@@ -23,8 +23,10 @@ const handle404 = customErrors.handle404
 // const requireOwnership = customErrors.requireOwnership
 const BadParamsError = require('../../lib/custom_errors').BadParamsError
 
+// checks to see if the requesting user's id matches the id of the user they are trying to update
 const validateUser = customErrors.validateUser
 
+// loads in User class from the models folder
 const User = require('../models/user')
 
 // passing this as a second argument to `router.<verb>` will make it

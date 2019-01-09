@@ -2,6 +2,9 @@
 
 const mongoose = require('mongoose')
 
+// mongoose allows the application to validate incoming data
+// as seen below, users require unique emails, and nicknames,
+// and there are limits to the length of the nickname value
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -36,4 +39,5 @@ const userSchema = new mongoose.Schema({
   }
 })
 
+// creates and User class with the userSchema applied to it
 module.exports = mongoose.model('User', userSchema)
