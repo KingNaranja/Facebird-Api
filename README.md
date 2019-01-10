@@ -24,6 +24,31 @@ We built the Facebird Api in Express with Mongoose data validation. It receives 
 
 The Api requires users to sign up with a unique nickname and email. Posts belong to a user and a user can only edit and delete their own posts.
 
+#### API Routes
+
+### Authentication
+
+| Request type | Route            | Action                  | Return if Successful         |
+|--------------|------------------|-------------------------|------------------------------|
+| POST         | `/sign-up`         | Creates a new user      | 201 / user object            |
+| POST         | `/sign-in`         | Checks credentials      | 201 / user object with token |
+| PATCH        | `/change-password` | Hashes new password     | 204                          |
+| DELETE       | `/sign-out`        | Hashes stored Api Token | 204                          |
+
+### User Actions
+
+| Request type | Route                 | Action                                                                       | Return if Successful |
+|--------------|-----------------------|------------------------------------------------------------------------------|----------------------|
+| INDEX        | `/posts`              | Fetches all posts, sorts by date created (newest first)                      | 200 / all posts      |
+| SHOW         | `/posts/:id`          | Fetches single post                                                          | 200 / one post       |
+| POST         | `/posts`              | Creates a new post                                                           | 201 / created post   |
+| PATCH        | `/posts/:id`          | Updates contents of a post (if owned by requesting user)                     | 204                  |
+| DELETE       | `/posts/:id`          | Deletes a post (if owned by requesting user)                                 | 204                  |
+| INDEX        | `/posts/myPosts`      | Fetches / sorts all posts, then filters for those owned by the requester     | 200 / all my posts   |
+| SHOW         | `/posts/myLatestPost` | Fetches / sorts all posts, then filters until finds first owned by requester | 200 / one post       |
+| PATCH        | `/users/:id`          | Updates User nickname                                                        | 204                  |
+
+
 # Technologies Used (CLIENT):
 ### Client
  * HTML / CSS
