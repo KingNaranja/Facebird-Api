@@ -155,20 +155,20 @@ router.patch('/posts/:id', requireToken, (req, res) => {
       // it will throw an error if the current user isn't the owner
       requireOwnership(req, post)
 
-      // the client will often send empty strings for parameters that it does
-      // not want to update. We delete any key/value pair where the value is
-      // an empty string before updating
+      // before updating post 
+      // delete any empty fields sent by client
+      
       Object.keys(req.body.post).forEach(key => {
         if (req.body.post[key] === '') {
           delete req.body.post[key]
         }
+        post[key] = req.body.post[key]
       })
 
-      // pass the result of Mongoose's `.update` to the next `.then`
-      return post.update(req.body.post)
+      return post.save()
     })
-    // if that succeeded, return 204 and no JSON
-    .then(() => res.sendStatus(204))
+    // if that succeeded, return the updated post
+    .then(post => res.status(200).json({ post: post }))
     // if an error occurs, pass it to the handler
     .catch(err => handle(err, res))
 })
