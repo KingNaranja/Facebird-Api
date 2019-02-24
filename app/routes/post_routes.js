@@ -148,27 +148,23 @@ router.patch('/posts/:id', requireToken, (req, res) => {
   // owner, prevent that by deleting that key/value pair
   delete req.body.post.owner
 
-  Post.findById(req.params.id)
+  // before updating post 
+  // delete any empty fields sent by client   
+  Object.keys(req.body.post).forEach(key => {
+    if (req.body.post[key] === '') {
+      delete req.body.post[key]
+    }
+  })
+
+  Post.findByIdAndUpdate(req.params.id, req.body.post, { new: true })
     .then(handle404)
     .then(post => {
       // pass the `req` object and the Mongoose record to `requireOwnership`
       // it will throw an error if the current user isn't the owner
       requireOwnership(req, post)
-
-      // before updating post 
-      // delete any empty fields sent by client
-      
-      Object.keys(req.body.post).forEach(key => {
-        if (req.body.post[key] === '') {
-          delete req.body.post[key]
-        }
-        post[key] = req.body.post[key]
-      })
-
-      return post.save()
+      // if that succeeded, return the updated post
+      res.status(200).json({ post: post })
     })
-    // if that succeeded, return the updated post
-    .then(post => res.status(200).json({ post: post }))
     // if an error occurs, pass it to the handler
     .catch(err => handle(err, res))
 })
